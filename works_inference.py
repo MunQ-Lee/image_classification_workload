@@ -114,9 +114,6 @@ parser.add_argument('--loop', default=0, type=int, metavar='N', help='if this is
 #parser.add_argument('--opt', default='')
 args = parser.parse_args()
 
-str_gpus = ""
-devices = []
-
 # main function
 def main():
     memory_start_time = time.time()
@@ -139,19 +136,18 @@ def main():
             model.fit(train, epochs=args.epochs, steps_per_epoch=args.steps, workers=args.workers,
                         validation_data=validation, validation_steps=args.validations, callbacks=[customHistory],
                         use_multiprocessing=True)
-            '''
+
             model.fit(train, epochs=args.epochs, steps_per_epoch=args.steps, workers=args.workers,
                         callbacks=[customHistory])
 
             model.evaluate(validation, steps=args.steps, use_multiprocessing=True, workers=args.workers,
                         callbacks=[customHistory])
-            
-            customHistory.printAverage()
+            '''
+            example_result = model.predict(validation, steps=args.steps, callbacks=[customHistory], workers=args.workers)
+            print(example_result)
 
-            '''
-            _loss, _acc, _precision, _recall, _f1score = model.evaluate(train, validation)
-            print('loss: {:.3f}, accuracy: {:.3f}, precision: {:.3f}, recall: {:.3f}, f1score: {:.3f}'.format(_loss, _acc, _precision, _recall, _f1score))
-            '''
+
+            customHistory.printAverage()
 
     elif args.platform=='pytorch':
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -353,7 +349,7 @@ def build(plat='tensorflow', model='resnet', layer='50'):
 
             elif model=='resnet':
                 if layer=='50':
-                    buildingModel = ResNet50(weights=None, include_top=True)
+                    buildingModel = ResNet50(weights='imagenet', include_top=True)
                 elif layer=='101':
                     buildingModel = ResNet101(weights=None, include_top=True)
                 elif layer=='152':
@@ -538,6 +534,9 @@ class AverageMeter(object):
     def __str__(self):
         fmtstr = '{name} {val' + self.fmt + '} ({avg' + self.fmt + '})'
         return fmtstr.format(**self.__dict__)
+
+str_gpus = ""
+devices = []
 
 if __name__ == "__main__":
     total_time_start = time.time()
