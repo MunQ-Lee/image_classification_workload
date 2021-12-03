@@ -14,7 +14,7 @@ parser.add_argument("-l", "--layer", default='50', help="select layer")
 parser.add_argument("-f", "--fraction", type=float, default=1, help="select layer")
 parser.add_argument("-g", "--grow", default=0, type=int, help="select layer")
 parser.add_argument("--gpus", default='0', type=str, help="select one gpu")
-parser.add_argument("--workers", default=20, type=int, help="select cpu number")
+parser.add_argument("--l", default=20, type=int, help="select cpu number")
 
 # low level argument
 parser.add_argument('-b', '--batch-size', default=64, type=int, metavar='N',
@@ -191,10 +191,10 @@ def main():
             customHistory = CustomHistory()
             customHistory.init()
 
-            model.fit(train, epochs=args.epochs, steps_per_epoch=args.steps, workers=args.workers,
+            model.fit(train, epochs=args.epochs, steps_per_epoch=args.steps, workers=args.workers, use_multiprocessing=False, 
                         callbacks=[customHistory])
 
-            model.evaluate(validation, steps=args.steps, use_multiprocessing=True, workers=args.workers,
+            model.evaluate(validation, steps=args.steps, use_multiprocessing=False, workers=args.workers,
                         callbacks=[customHistory])
             
             #example_result = model.predict(validation, steps=args.steps, callbacks=[customHistory], workers=args.workers)
@@ -290,36 +290,36 @@ def main():
         print("average epoch time :", Totaltime/args.epochs)
         log.write("Average epoch time : %10.5f\n" %(Totaltime/args.epochs))
             
-        model.to(device)
-        model.eval()
-        
-        losses = AverageMeter('Loss', ':.4e')
-        top1 = AverageMeter('Acc@1', ':6.2f')
-        top5 = AverageMeter('Acc@5', ':6.2f')
-        valTotalTime = 0
-        for i, (images, target) in enumerate(validation):
-            if i >= args.validations :
-                break
-            valStartTime = time.time()
-            images = images.to(device)
-            target = target.to(device)
-
-            output = model(images)
-
-            loss = criterion(output, target)
-            acc1, acc5 = accuracy(output, target, topk=(1, 5))
-
-            losses.update(loss.item(), images.size(0))
-            top1.update(acc1[0], images.size(0))
-            top5.update(acc5[0], images.size(0))
-
-            valEndTime = time.time()
-            valThisTime = valEndTime - valStartTime
-            valTotalTime += valThisTime
-            print('\r validations : {i:5d} | Acc@1 : {top1.avg:7.3f} | Acc@5 : {top5.avg:7.3f} | time : {time:7.3f}'
-                      .format(i=i+1, top1=top1, top5=top5, time=valThisTime), end='')
-        print('\n Mean validation time :', valTotalTime/args.validations)
-        log.write(' Mean validation time : %10.5f\n' %(valTotalTime/args.validations))
+        #model.to(device)
+        #model.eval()
+        #
+        #losses = AverageMeter('Loss', ':.4e')
+        #top1 = AverageMeter('Acc@1', ':6.2f')
+        #top5 = AverageMeter('Acc@5', ':6.2f')
+        #valTotalTime = 0
+        #for i, (images, target) in enumerate(validation):
+        #    if i >= args.validations :
+        #        break
+        #    valStartTime = time.time()
+        #    images = images.to(device)
+        #    target = target.to(device)
+        #
+        #    output = model(images)
+        #
+        #    loss = criterion(output, target)
+        #    acc1, acc5 = accuracy(output, target, topk=(1, 5))
+        #
+        #    losses.update(loss.item(), images.size(0))
+        #    top1.update(acc1[0], images.size(0))
+        #    top5.update(acc5[0], images.size(0))
+        #
+        #    valEndTime = time.time()
+        #    valThisTime = valEndTime - valStartTime
+        #    valTotalTime += valThisTime
+        #    print('\r validations : {i:5d} | Acc@1 : {top1.avg:7.3f} | Acc@5 : {top5.avg:7.3f} | time : {time:7.3f}'
+        #              .format(i=i+1, top1=top1, top5=top5, time=valThisTime), end='')
+        #print('\n Mean validation time :', valTotalTime/args.validations)
+        #log.write(' Mean validation time : %10.5f\n' %(valTotalTime/args.validations))
                 
     else : print("Unknown platform!")
 
@@ -368,8 +368,8 @@ def dataLoad(plat='tensorflow', dataset='imagenet'):
 # Model build
 def build(plat='tensorflow', model='resnet', layer='50'):
     if plat=='tensorflow':
-        mirrored_strategy = tf.distribute.MirroredStrategy()
-        with mirrored_strategy.scope():
+        #mirrored_strategy = tf.distribute.MirroredStrategy()
+        #with mirrored_strategy.scope():
             if model=='densenet':
                 if layer=='121':
                     buildingModel = DenseNet121(weights=None, include_top=True)
