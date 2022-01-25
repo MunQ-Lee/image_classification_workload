@@ -15,6 +15,7 @@ parser.add_argument("-f", "--fraction", type=float, default=1, help="select laye
 parser.add_argument("-g", "--grow", default=0, type=int, help="select layer")
 parser.add_argument("--gpus", default='0', type=str, help="select one gpu")
 parser.add_argument("--l", default=20, type=int, help="select cpu number")
+parser.add_argument("--workers", default=20, type=int, help="select cpu number")
 
 # low level argument
 parser.add_argument('-b', '--batch-size', default=64, type=int, metavar='N',
