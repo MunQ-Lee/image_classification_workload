@@ -195,8 +195,8 @@ def main():
             model.fit(train, epochs=args.epochs, steps_per_epoch=args.steps, workers=args.workers, use_multiprocessing=False, 
                         callbacks=[customHistory])
 
-            model.evaluate(validation, steps=args.steps, use_multiprocessing=False, workers=args.workers,
-                        callbacks=[customHistory])
+            # model.evaluate(validation, steps=args.steps, use_multiprocessing=False, workers=args.workers,
+            #             callbacks=[customHistory])
             
             #example_result = model.predict(validation, steps=args.steps, callbacks=[customHistory], workers=args.workers)
             #print(example_result)
